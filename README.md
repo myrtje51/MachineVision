@@ -6,4 +6,6 @@ This GIT repository contains all the code that I've written over the course of 5
 ## Description per folder
 There are two main folders: 
 - Height_and_SurfaceArea_data: this folder contains all the code related to how the height, surface area and growthrate is calculated
+  - ipynb & py: contains most of the important code where the first folder contains IPython Notebooks and the second python code
+  - GrowthRates: contains the calculated growthrates of the Radius method and the code: 
 - Hyperspectral_Data: this folder contains all the code related to the hyperspectral indices that are calculated
