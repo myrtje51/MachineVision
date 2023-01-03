@@ -5,5 +5,5 @@ This GIT repository contains all the code that I've written over the course of 5
 
 ## Description per folder
 There are two main folders: 
-- Height_and_SurfaceArea_data
-- Hyperspectral_Data
+- Height_and_SurfaceArea_data: this folder contains all the code related to how the height, surface area and growthrate is calculated
+- Hyperspectral_Data: this folder contains all the code related to the hyperspectral indices that are calculated
