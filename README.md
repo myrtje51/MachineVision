@@ -6,6 +6,6 @@ This GIT repository contains all the code that I've written over the course of 5
 ## Description per folder
 There are two main folders: 
 - Height_and_SurfaceArea_data: this folder contains all the code related to how the height, surface area and growthrate is calculated
-  - ipynb & py: contains most of the important code where the first folder contains IPython Notebooks and the second python code.
+  - ipynb & py: contains most of the important code where the first folder contains IPython Notebooks and the second python code. The code: ClosestPixels.py is the code that determines the centers using Local Maxima and finding the nearest pixels. The code: ClosestPixelHeightCalculation.py calculates the height per pixel and saves it in a different file. The code: RateCalculationClosestPixels.py calculates the growth rates for the surface area of the plant and the height.
   - GrowthRates: contains the calculated growthrates of the Radius method and the code: growthrate_sativa.py. Which is the code for calculating the growthrates using the Radius method
 - Hyperspectral_Data: this folder contains all the code related to the hyperspectral indices that are calculated
