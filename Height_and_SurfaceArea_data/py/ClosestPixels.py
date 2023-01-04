@@ -66,10 +66,21 @@ for d, p in zip(dates,pixel_width):
         xy = np.array(ndimage.center_of_mass(im, labeled, range(1, num_objects+1)))
 
         def dist2(p1, p2):
+            """
+            Input: Two sets of x and y values in Tuple
+            Output: Euclidian distance
+            """
             # We compute the Euclidian distance
             return (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2
 
         def fuse(points, d):
+            """
+            Input: 
+                points --> List of X and Y values in tuples
+                d --> the maximum distance
+            Output: 
+                A filtered list of X and Y values with the ones that are too close to each other removed
+            """
             # In this function we try to eliminate local minima that are too close to each other
             # meaning they are probably the same height value. This is done by computing the Euclidian distance
             ret = []
@@ -107,6 +118,14 @@ for d, p in zip(dates,pixel_width):
         # rows = y = i
         # columns = x = j
         def closestPixel(filt, im, mh):
+            """
+            Input:
+                filt --> list of x and y values of the centers found using the local maxima
+                im --> an image
+                mh --> soil height to correct on
+            Output: 
+                row_df --> list of lists that can be turned into a dataframe
+            """
             # for this function you input the centers found by local maxima, the image and the soil threshold
             # we determine the shape of the image
             rows,cols = im.shape
