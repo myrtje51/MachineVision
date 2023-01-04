@@ -1,3 +1,4 @@
+# Import all important packages for building an autoencoder
 import keras
 from matplotlib import pyplot as plt
 from keras.layers import Input,Conv2D,MaxPooling2D,UpSampling2D
@@ -16,8 +17,10 @@ from sklearn.metrics import classification_report
 from tensorflow.keras import layers
 from keras_tuner import RandomSearch
 
+# Read the train and the test data
 train_data = 'Sativa_AS/training.gz'
 test_data = 'Sativa_AS/test.gz'
+# Configure some of the IL ids to LK ids.
 conf_table = pd.read_excel('PileUp_dronedata_Feb2022.xlsx')
 conf_table2 = conf_table.dropna(subset=['subgroup'])
 subgroup = conf_table2[['Plot.ID','subgroup']]
@@ -26,6 +29,7 @@ subgroup = conf_table2[['Plot.ID','subgroup']]
 all_photos_train = []
 train_labels = []
 sativa_ILs = os.listdir("training")
+# Filter the training set on only keeping the L. satvia images
 for m in sativa_ILs:
     IL = m[6:11]
     sg = subgroup.loc[subgroup['Plot.ID'] == IL]['subgroup'].values[0]
@@ -42,6 +46,7 @@ train_labels = pd.factorize(train_labels)[0]
 all_photos_test = []
 test_labels = []
 sativa_ILs = os.listdir("test")
+# Filter the test set on only the L. sativa images
 for m in sativa_ILs:
     IL = m[6:11]
     sg = subgroup.loc[subgroup['Plot.ID'] == IL]['subgroup'].values[0]
@@ -90,6 +95,15 @@ def show_image(x):
 print("Check the range of RGB values: \n", all_photos_train.max(), all_photos_test.min())
 
 def build_autoencoder(img_shape, code_size):
+    """
+    This is the code for a very simple autoencoder which I left in in case you want to try to compare this one with a baseline
+    Input: 
+        img_shape --> the dimensions of your image
+        code_size --> the size to which the image needs to be decoded/reducted
+    Output: 
+        encoder --> the encoder
+        decoder --> the decoder 
+    """
     # The encoder
     encoder = Sequential()
     encoder.add(InputLayer(img_shape))
@@ -107,6 +121,12 @@ def build_autoencoder(img_shape, code_size):
     return encoder, decoder
 
 def encoder(input_img):
+    """
+    Input: 
+        input_img --> the image that you want to encode
+    Output: 
+        conv4 --> the encoder
+    """
     #encoder
     #input = 28 x 28 x 1 (wide and thin)
     conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img) #28 x 28 x 32
@@ -128,20 +148,26 @@ def encoder(input_img):
     conv3 = Dropout(0.25)(conv3)
     conv3 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv3)
     conv3 = BatchNormalization()(conv3)
-#    conv3 = Dropout(0.25)(conv3)
-#    conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv3) #7 x 7 x 256 (small and thick)
-#    conv4 = BatchNormalization()(conv4)
-#    conv4 = Dropout(0.25)(conv4)
-#    conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv4)
-#    conv4 = BatchNormalization()(conv4)
-    return conv3
+    conv3 = Dropout(0.25)(conv3)
+    conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv3) #7 x 7 x 256 (small and thick)
+    conv4 = BatchNormalization()(conv4)
+    conv4 = Dropout(0.25)(conv4)
+    conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv4)
+    conv4 = BatchNormalization()(conv4)
+    return conv4
 
-def decoder(conv5):    
+def decoder(conv5):
+    """
+    Input: 
+        conv5 --> the encoder
+    Output: 
+        decoded --> the decoder
+    """
     #decoder
-#    conv5 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv4) #7 x 7 x 128
-#    conv5 = BatchNormalization()(conv5)
-#    conv5 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv5)
-#    conv5 = BatchNormalization()(conv5)
+    conv5 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv4) #7 x 7 x 128
+    conv5 = BatchNormalization()(conv5)
+    conv5 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv5)
+    conv5 = BatchNormalization()(conv5)
     conv6 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv5) #7 x 7 x 64
     conv6 = BatchNormalization()(conv6)
     conv6 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv6)
@@ -156,12 +182,24 @@ def decoder(conv5):
     return decoded
 
 def fc(enco):
+    """
+    Input: 
+        enco --> the encoder
+    Output: 
+        out --> final decoder
+    """
     flat = Flatten()(enco)
     den = Dense(128, activation='relu')(flat)
     out = Dense(7, activation='softmax')(den)
     return out
 
 def build_model(hp):          #hp means hyper parameters
+    """
+    Input: 
+        hp --> the hyperparameters
+    Output: 
+        model --> the final model
+    """
     model=Sequential()
     model.add(Flatten(input_shape=(100,100,3)))
     #providing range for number of neurons in a hidden layer
@@ -187,6 +225,7 @@ print(autoencoder.summary())
 encode = encoder(inp)
 full_model = Model(inp,fc(encode))
 
+# Find the weights determined by the model
 for l1,l2 in zip(full_model.layers[:19],autoencoder.layers[0:19]):
     l1.set_weights(l2.get_weights())
     
@@ -205,6 +244,7 @@ for l1,l2 in zip(full_model.layers[:19],autoencoder.layers[0:19]):
 for layer in full_model.layers[0:19]:
     layer.trainable = True
 
+# Train the model
 full_model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adam(learning_rate=0.001),metrics=['accuracy'])
 classify_train = full_model.fit(train_X, train_label, batch_size=64,epochs=25,verbose=1,validation_data=(valid_X, valid_label))
 full_model.save_weights('classification_complete_firsttest.h5')
@@ -213,7 +253,7 @@ full_model.save('encoder_3.0.h5')
 # saving the model so that we can analyse it in Jupyter Notebook for example
 #autoencoder.save('autoencoder_model_test.h5')
 
-
+# Visualize the results of our autoencoder
 accuracy = classify_train.history['accuracy']
 val_accuracy = classify_train.history['val_accuracy']
 loss = classify_train.history['loss']
@@ -253,7 +293,14 @@ print(classification_report(test_labels, predicted_classes, target_names=target_
 # Predict using 
 
 def visualize(img,encoder,decoder, number):
-    """Draws original, encoded and decoded images"""
+    """
+    Draws original, encoded and decoded images
+    Input: 
+        img --> the original image
+        encoder --> the reducted features of the image
+        decoder --> the reconstructed image
+        number --> if in a for loop the number of the image
+    """
     # img[None] will have the same shape as the model input
     code = encoder.predict(img[None])[0]
     reco = decoder.predict(code[None])[0]
