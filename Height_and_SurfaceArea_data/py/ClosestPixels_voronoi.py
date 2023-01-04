@@ -1,3 +1,8 @@
+"""
+### ANOUNCEMENT
+This is a test script that I did not end up using for the results of my project. Therefore the documentation is a bit messy.
+### ANOUNCEMENT
+"""
 import cv2
 import numpy as np
 import zipfile
