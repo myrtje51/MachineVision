@@ -86,6 +86,14 @@ files_ts2_sat_NDVI = list(filter_sat(files_ts10_NDVI))
 
 # Check if both Time Slots have information for all accessions.
 def filter_both(file1, file2):
+    """
+    Input: 
+        file1 --> list of files to filter
+        file2 --> list of files to use for the filtering
+    Output:
+        ffiles_ts1 --> list of filtered files
+        ffiles_ts2 --> list of filtered files
+    """
     ffiles_ts1 = []
     ffiles_ts2 = []
     for x in file1:
@@ -128,6 +136,14 @@ def read_image(zipped_file, archive):
     return np_g, np_rgb
 
 def find_objects(mask):
+    """
+    Input: 
+        mask --> the mask determined using cv2
+    Output: 
+        area_vals --> list of the areas of objects
+        sorted_objects --> list of objects 
+        label_coord --> list of coordinates of the centers of the objects
+    """
     # Find objects
     id_objects, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[-2:]
     # Sort objects
@@ -149,6 +165,13 @@ def find_objects(mask):
     return area_vals, sorted_objects, label_coord
 
 def extractCoordinates(filename, coordinates): 
+    """
+    Input: 
+        filename --> name + path of the file 
+        coordinates --> the coordinates of the objects
+    Output: 
+        xy_present --> list of tuples of coordinates
+    """
     xy_present = []
     for i in range(30):
         if filename[18:23] in coordinates.values:
@@ -166,6 +189,22 @@ def extractCoordinates(filename, coordinates):
  # Lactuca sativa
 pcv.params.debug = None
 def height_rate(files_present, files_past, height_present, height_past, archive_present, archive_past, ah_present, ah_past,xys):
+    """
+    Input: 
+        files_present --> NDVI files of a certain date later than the files_past
+        files_past --> NDVI files of a certain date earlier than the files_present
+        height_present --> Heightmap files of a certain date later than the height_past
+        height_past --> Heightmap files of a certain date earlier than the height_present
+        archive_present --> the NDVI archive of the later date
+        archive_past --> the NDVI archive of the earlier date
+        ah_present --> the heightmap archive of the later date
+        ah_past --> the heightmap archive of the earlier date
+        xys --> coordinates
+    Output: 
+        list_gr --> list of growth rates
+        list_acc --> list of accessions
+        list_height --> list of heights
+    """
     # Create a list to store the growth rate and the different accessions
     list_gr = []
     list_acc = []
@@ -241,8 +280,6 @@ df = pd.DataFrame()
 df['acc'] = acc
 df['height'] = he
 df['coordinates'] = gr
-#df_h = pd.DataFrame(he, index =acc, columns =['Height'])
-#name = 'Sativa_20210622-20210625_heightrate.csv'
 nameh = 'Sativa_20210622_height_corrected.csv'
 df.to_csv(nameh, index=True)
                    
