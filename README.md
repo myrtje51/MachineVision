@@ -10,3 +10,5 @@ There are two main folders:
   - GrowthRates_Radius: contains the calculated growthrates of the Radius method and the code: growthrate_sativa.py. Which is the code for calculating the growthrates using the Radius method
   - LinkLettuce/PhenotypesClosestPixels: contains all the results from the Nearest Pixel methods including the growth rates
 - Hyperspectral_Data: this folder contains all the code related to the hyperspectral indices that are calculated. The code: Input_GWAS_generation.py generates data that can be used as input for our GWAS. The code: read_hyperspectral.py generates a TSV file with the different spectral indice calculations. 
+
+## Test
